@@ -4,16 +4,8 @@
 ## React Sample App
 - dockerやReactになれていこうの試み
 
-## React アプリの構築
-```
-sh build-react.sh
-```
-- パッケージを追加したい場合，build-react.sh 内に以下のように書く（絶対もっと良いやり方ある）
-```
-docker-compose run --rm app sh -c "npm install react-router-dom"
-```
 
-## Dockerコンテナの起動
+## Dockerコンテナのビルド & 起動
 ```
 sh up.sh
 ```
@@ -21,6 +13,31 @@ sh up.sh
 ## Dockerコンテナ・イメージ・ボリュームなど全消し
 ```
 docker-compose down --rmi all --volumes --remove-orphans
+```
+
+## DB 関係のあれこれ
+### MySQL の IPアドレスの確認
+- server/app/config.py の9行目を変える必要がある
+- IPアドレスを確認するコマンド
+```
+docker ps
+docker inspect <mysql_container_id> | grep IPAddress
+```
+
+### DB のマイグレーション
+```
+docker exec -it <python_container_id> bash
+flask db init
+flask db migrate
+flask db upgrade
+```
+
+### MySQL でのテーブル存在確認
+```
+mysql -u root -p
+SHOW DATABASES;
+use <database_name>;
+show tables;
 ```
 
 ## VSCode で変更を保存できるようにする手順（初回のみ）
