@@ -1,4 +1,6 @@
-import { createContext, useState } from "react"
+import { createContext, useState, useEffect } from "react"
+import axios from 'axios'
+
 import ArrangeDateTemp from "../temp/ArrangeDateTemp"
 
 const koma_table = ["10:00～11:15", "11:30～12:45", "13:30～14:45", "15:00～16:15"]
@@ -26,6 +28,15 @@ function ArrangeDatePage() {
     comeFlags,
     setComeFlags
   }
+
+  useEffect(() => {
+    const getUser = async () => {
+      const response = await axios.get('http://localhost:5000/');
+      console.log(response.data)
+    }
+    getUser()
+  }, [])
+
 
   return (
     <>

@@ -1,6 +1,6 @@
-from .models import User
+from .Student import Student
 
 
 __all__ = [
-    User,
+    Student,
 ]

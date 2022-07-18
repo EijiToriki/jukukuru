@@ -29,16 +29,16 @@ services:
       - ./server/db/sql:/docker-entrypoint-initdb.d
     ports:
       - 3306:3306
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./frontend:/usr/app
-  #   command: sh -c "yarn start"
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./server/:/app/
-  #     - ./frontend/:/usr/app/
-  #   tty: true
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/usr/app
+    command: sh -c "yarn start"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server/:/app/
+      - ./frontend/:/usr/app/
+    tty: true
