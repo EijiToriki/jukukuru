@@ -12,15 +12,28 @@ def create_app():
 
     @app.route('/')
     def index():
-        # return 'Peterが増えるプログラムです'
-        return jsonify({"language":"python"})
+        return '生徒の登録・削除・更新を行う'
+        # return jsonify({"language":"python"})
 
-    # @app.route('/insert')
-    # def insert_default_students():
-    #     all_peter = User.query.filter_by(name='peter').all()
-    #     how_many_peter = len(all_peter)
-    #     return '今Peterは{}人います'.format(how_many_peter)
+    @app.route('/insert')
+    def insert_default_students():
+        all_student = Student.query.all()
+        student_num = len(all_student)        
 
+        student = Student(studentId=student_num+1, name='eiji toriki', grade=1)
+        db.session.add(student)
+        db.session.commit()
+        return f'{student.studentId}番 {student.name} を追加'
+
+    @app.route('/delete')
+    def delete_student():
+        student = Student.query.filter_by(studentId=1).first()
+        if student is not None:
+            db.session.delete(student)
+            db.session.commit()
+            return '削除完了'
+        else:
+            return '削除対象なし'
 
     # @app.route('/show')
     # def show_users():
@@ -35,15 +48,6 @@ def create_app():
     #     db.session.commit()
     #     return 'Peterを増やしました。'
 
-    # @app.route('/delete')
-    # def delete_user():
-    #     peter = User.query.filter_by(name='peter').first()
-    #     if peter is not None:
-    #         db.session.delete(peter)
-    #         db.session.commit()
-    #         return 'Peterを減らしました。'
-    #     else:
-    #         return 'Peterはひとりもいません'
 
     return app
 

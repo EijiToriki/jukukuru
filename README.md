@@ -32,6 +32,7 @@ docker inspect <mysql_container_id> | grep IPAddress
 ```
 
 ### DB のマイグレーション
+- db init は初回のみ
 ```
 docker exec -it <python_container_id> bash
 flask db init
