@@ -24,33 +24,35 @@ function getAnsFromForm() {
   //   console.log(ansArr[i][0][1])
   // }
 
-  makeComingDateSpreadSheet(resArr)
+  // makeComingDateSpreadSheet(resArr)
+  console.log(resArr)
   
 }
 
 function makeComingDateSpreadSheet(responses){
   // スプレッドシートからタイトルと説明を取得
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  writeBaseInfo(ss)
+  writeBaseInfo(ss, responses)
   writeDateTemp(ss)
 }
 
 
 // 学年・氏名・学校名など基本的な情報を書きこむ
-function writeBaseInfo(ss){
+function writeBaseInfo(ss, responses){
+  const writeSheet = ss.getSheetByName('受講日表_テンプレート')
   // 変わらない情報を書き込み
-  ss.getRange('A6').setValue('氏名')
-  ss.getRange('C6').setValue('学年')
-  ss.getRange('F6').setValue('学校名')
+  writeSheet.getRange('A6').setValue('氏名')
+  writeSheet.getRange('C6').setValue('学年')
+  writeSheet.getRange('F6').setValue('学校名')
 
   // 生徒情報を書きこむ
   // todo : setValusesで書き込めるようにする
   // todo : 名前順ソート，学年順ソート
   baseRow = 7
   for(let i=0; i<responses.length; i++){
-    ss.getRange(`A${baseRow+i}`).setValue(responses[i][0][1])
-    ss.getRange(`C${baseRow+i}`).setValue(responses[i][3][1])
-    ss.getRange(`F${baseRow+i}`).setValue(responses[i][1][1])
+    writeSheet.getRange(`A${baseRow+i}`).setValue(responses[i][0][1])
+    writeSheet.getRange(`C${baseRow+i}`).setValue(responses[i][3][1])
+    writeSheet.getRange(`F${baseRow+i}`).setValue(responses[i][1][1])
   }
 }
 
@@ -85,6 +87,7 @@ function writeDateTemp(ss){
   // デフォルトは z で終わるため，列をあらかじめ追加しておく
   writeSheet.insertColumnsAfter(mergeStartNum, komaNum*mergeStartNum);
 
+  // 曜日と日付を書き込む
   for(let i=0; i<yobiArray.length; i++){
     // 曜日セル
     writeSheet.getRange(2, mergeStartNum+i*komaNum+1).setValue(yobiArray[i])
@@ -98,6 +101,34 @@ function writeDateTemp(ss){
     mergeRange.merge()
   }
 
+  // コマ情報を書きこむ
+  // // [①：10:00～11:15, ... , ⑥：18:00～19:15] -> [①,...,⑥]
+  let displaykomaStr = dateSheet.getRange(3, 2, 1, komaNum).getValues()
+  for(let i=0; i<displaykomaStr[0].length;i++){
+    displaykomaStr[0][i] = displaykomaStr[0][i][0]
+  }
+  // // 受講日フォームのoxを取得する
+  const komaValues = dateSheet.getRange(4, 2, dateData.length, komaNum).getValues()
+
+  // // 生徒数を取得
+  const id = '1HUOjs2CtYBtTnjfQ0iz0f2Um6-53JTXWWjVKtUpjb_8'
+  const studentNum = FormApp.openById(id).getResponses().length;
+
+  const komaStartNum = 7  // コマ情報を書きこむ列の最初
+
+  for(let i=0; i<dateArray.length; i++){
+    writeSheet.getRange(6, komaStartNum+i*komaNum, 1, komaNum).setValues(displaykomaStr)
+    for(let j=0; j<displaykomaStr[0].length; j++){
+      if(komaValues[i][j] === 'x'){
+        writeSheet.getRange(6, komaStartNum+i*komaNum+j, studentNum+1, 1).setBackground('gray')
+      }
+    }
+  }
+
+  // 生徒基本情報の列幅
+  writeSheet.setColumnWidths(1, komaNum-1, 100)
+  // コマ情報の列幅
+  writeSheet.setColumnWidths(komaStartNum, dateArray.length*komaNum, 20)
 }
 
 
