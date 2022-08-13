@@ -25,7 +25,9 @@ function getAnsFromForm() {
   // }
 
   // makeComingDateSpreadSheet(resArr)
-  console.log(resArr)
+  // console.log(resArr)
+  console.log(JSON.stringify(resArr));
+  
   
 }
 
@@ -59,10 +61,6 @@ function writeBaseInfo(ss, responses){
 
 // 日付のテンプレートを作る
 function writeDateTemp(ss){
-  // 後で消す
-  ss = SpreadsheetApp.getActiveSpreadsheet()
-  ////////////////////////////////////////////////
-
   const dateSheet = ss.getSheetByName('受講日フォーム_テンプレート')
   const startRowNum = 4
   const rowNum = dateSheet.getLastRow()
