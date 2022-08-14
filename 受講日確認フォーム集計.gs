@@ -19,14 +19,19 @@ function getAnsFromForm() {
     resArr.push(res)
   }
 
-  // データの取り出しサンプル（氏名が取り出される）
-  // for(let i=0; i<ansArr.length; i++){
-  //   console.log(ansArr[i][0][1])
+  // データの取り出しサンプル
+  // for(let i=0; i<resArr.length; i++){
+  //   for(let j=0; j<resArr[i].length;j++){
+  //     // 日付とオブジェクトの取り出し
+  //     if(typeof resArr[i][j][1] === 'object'){
+  //       console.log(resArr[i][j][0], resArr[i][j][1])
+  //     }
+  //   }
   // }
 
-  // makeComingDateSpreadSheet(resArr)
-  // console.log(resArr)
-  console.log(JSON.stringify(resArr));
+  makeComingDateSpreadSheet(resArr)
+
+  // console.log(JSON.stringify(resArr));   // 全部表示される
   
   
 }
@@ -34,8 +39,9 @@ function getAnsFromForm() {
 function makeComingDateSpreadSheet(responses){
   // スプレッドシートからタイトルと説明を取得
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  writeBaseInfo(ss, responses)
-  writeDateTemp(ss)
+  // writeBaseInfo(ss, responses)
+  // writeDateTemp(ss)
+  writeFillKoma(ss, responses)
 }
 
 
@@ -127,6 +133,44 @@ function writeDateTemp(ss){
   writeSheet.setColumnWidths(1, komaNum-1, 100)
   // コマ情報の列幅
   writeSheet.setColumnWidths(komaStartNum, dateArray.length*komaNum, 20)
+}
+
+// 来塾情報を書きこむ
+function writeFillKoma(ss, responses){
+  const dateSheet = ss.getSheetByName('受講日フォーム_テンプレート')
+  const writeSheet = ss.getSheetByName('受講日表_テンプレート')
+
+  // 講習会の開催日
+  const dateNum = dateSheet.getLastRow() - 3    // 3は上三行が日付と関係ないデータのため
+  // コマ数
+  const komaNum = dateSheet.getLastColumn() - 1 // 日付分の -1
+
+  const dateData = writeSheet.getRange(3, 7, 1, dateNum*komaNum).getValues()
+  let currentDate = ""
+  for(let i=0; i<dateData[0].length; i++){
+    if(dateData[0][i] === ""){
+      dateData[0][i] = currentDate
+    }else{
+      let date = dateData[0][i].toString().split(" ")
+      dateData[0][i] = `${convertMonth(date[1])}月${date[2]}日（${convertYobi(date[0])}）`
+      currentDate = dateData[0][i]
+    }
+  }
+
+  console.log(dateData)
+
+  // フォームから得た日付をインデックスとして，
+  // ['','','o','o',''] のような配列を作る．
+  // この配列を writeSheet に書き込む
+
+//   for(let i=0; i<responses.length; i++){
+//     for(let j=0; j<responses[i].length;j++){
+//       // 日付とオブジェクトの取り出し
+//       if(typeof responses[i][j][1] === 'object'){
+//         console.log(responses[i][j][0], responses[i][j][1])
+//       }
+//     }
+//   }
 }
 
 
