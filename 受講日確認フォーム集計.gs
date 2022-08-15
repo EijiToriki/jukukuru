@@ -1,5 +1,5 @@
 function getAnsFromForm() {
-  const id = '1HUOjs2CtYBtTnjfQ0iz0f2Um6-53JTXWWjVKtUpjb_8'
+  const id = '1NiB4l8ajzeV3cWOwUbyNw907w2BKczsm8pkaS1EhQaU'
   const form = FormApp.openById(id)
 
   const formResponses = form.getResponses()
@@ -19,28 +19,14 @@ function getAnsFromForm() {
     resArr.push(res)
   }
 
-  // データの取り出しサンプル
-  // for(let i=0; i<resArr.length; i++){
-  //   for(let j=0; j<resArr[i].length;j++){
-  //     // 日付とオブジェクトの取り出し
-  //     if(typeof resArr[i][j][1] === 'object'){
-  //       console.log(resArr[i][j][0], resArr[i][j][1])
-  //     }
-  //   }
-  // }
-
-  makeComingDateSpreadSheet(resArr)
-
-  // console.log(JSON.stringify(resArr));   // 全部表示される
-  
-  
+  makeComingDateSpreadSheet(resArr)  
 }
 
 function makeComingDateSpreadSheet(responses){
   // スプレッドシートからタイトルと説明を取得
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  // writeBaseInfo(ss, responses)
-  // writeDateTemp(ss)
+  writeBaseInfo(ss, responses)
+  writeDateTemp(ss)
   writeFillKoma(ss, responses)
 }
 
@@ -145,32 +131,75 @@ function writeFillKoma(ss, responses){
   // コマ数
   const komaNum = dateSheet.getLastColumn() - 1 // 日付分の -1
 
-  const dateData = writeSheet.getRange(3, 7, 1, dateNum*komaNum).getValues()
-  let currentDate = ""
-  for(let i=0; i<dateData[0].length; i++){
-    if(dateData[0][i] === ""){
-      dateData[0][i] = currentDate
-    }else{
-      let date = dateData[0][i].toString().split(" ")
-      dateData[0][i] = `${convertMonth(date[1])}月${date[2]}日（${convertYobi(date[0])}）`
-      currentDate = dateData[0][i]
+  // コマ情報（①：10:00～11:15, ...的な)
+  let komaData = dateSheet.getRange(3, 2, 1, komaNum).getValues()
+  komaData = komaData[0]
+
+
+  // todo
+  // 来ない日がある時の処理を書かなければならない
+
+  // 全日付取得
+  // let dateData = dateSheet.getRange(4, 1, dateNum).getValues()
+  // let dateDataTemp = []
+  // for(let i=0; i<dateNum; i++){
+  //   let date = dateData[i][0].toString().split(' ')
+  //   dateDataTemp.push(`${convertMonth(date[1])}月${date[2]}日（${convertYobi(date[0])}）`)
+  // }
+  // dateData = dateDataTemp
+
+  // let dateRes = []
+  // for(let i=0; i<responses.length; i++){
+  //   let dateBuf = []
+  //   for(let j=0; j<responses[i].length;j++){
+  //     // 日付とオブジェクトの取り出し
+  //     if(typeof responses[i][j][1] === 'object'){
+  //       dateBuf.push([responses[i][j][0], responses[i][j][1]])
+  //     }
+  //   }
+  //   dateRes.push(dateBuf)
+  // }
+
+  // console.log(dateRes[0].length)
+  // for(let i=0; i<dateRes.length; i++){
+  //   for(let j=0; j<dateRes[i].length; j++){
+  //     for(let k=0; k<dateData.length; k++){
+
+  //     }
+  //     console.log(dateRes[i][j][0])
+  //   }
+  // }
+
+
+  // フォームで得た日付から，
+  // 来塾情報を示す [['x','x','o','o','x'], [], ..., []] のような配列を作る．
+  // この配列を writeSheet に書き込む
+  let writeValue = []
+  for(let i=0; i<responses.length; i++){
+    let onePersonBuf = []
+    for(let j=0; j<responses[i].length;j++){
+      // 日付とオブジェクトの取り出し
+      if(typeof responses[i][j][1] === 'object'){
+        for(let k=0; k<komaNum; k++){
+          if(responses[i][j][1].includes(komaData[k])){
+            onePersonBuf.push('o')
+          }else{
+            onePersonBuf.push('x')
+          }
+        }
+      }
     }
+    writeValue.push(onePersonBuf)
   }
 
-  console.log(dateData)
 
-  // フォームから得た日付をインデックスとして，
-  // ['','','o','o',''] のような配列を作る．
-  // この配列を writeSheet に書き込む
+  // 来塾データの書き込み
+  const startStudentNum = 7
+  const startKomaNum = 7
+  const studentNum = writeValue.length
+  const totalKomaNum = writeValue[0].length
+  writeSheet.getRange(startStudentNum, startKomaNum, studentNum, totalKomaNum).setValues(writeValue)
 
-//   for(let i=0; i<responses.length; i++){
-//     for(let j=0; j<responses[i].length;j++){
-//       // 日付とオブジェクトの取り出し
-//       if(typeof responses[i][j][1] === 'object'){
-//         console.log(responses[i][j][0], responses[i][j][1])
-//       }
-//     }
-//   }
 }
 
 
